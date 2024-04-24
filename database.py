@@ -3,23 +3,23 @@ from bs4 import BeautifulSoup
 from google.cloud import firestore
 # Initialize Firebstore client
 db = firestore.Client(project="chatbotdeployGCP", database="library-data")
-#query = 'cloud computing bible'
+query = 'cloud computing bible'
 # URL of the website to scrape
 url = 'https://libraries.uta.edu'
 #searchUrl = f'{url}/search?search_field=title&search_param=contains&Bquery={query}'
 Header = ({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0'})
 # Send a GET request to search URL
-#response = requests.get(searchUrl,Header)
+response = requests.get(searchUrl,Header)
 # Check if the GET request was successful
-#if response.status_code == 200:
-    # Parse the HTML content of the search results page
-  #  soup = BeautifulSoup(response.content, 'html.parser')
-    # Extract the links to the book's details page
-   # bookLinks = soup.find_all('a',{'class':'small text-white'})
-   # for link in bookLinks:
-    #    print(link)
-#else:
-   # print(f'Error {response.status_code} while accessing the search results page.')
+if response.status_code == 200:
+    #Parse the HTML content of the search results page
+    soup = BeautifulSoup(response.content, 'html.parser')
+    #Extract the links to the book's details page
+    bookLinks = soup.find_all('a',{'class':'small text-white'})
+    for link in bookLinks:
+        print(link)
+else:
+    print(f'Error {response.status_code} while accessing the search results page.')
 # Send a GET request to the URL
 response = requests.get(url,Header)
 # Check if the GET request was successful
@@ -44,7 +44,7 @@ if response.status_code == 200:
             }
             print(researchData)
         #Creating collection for researchData
-        #research_ref = db.collection('ResearchCollection').add(researchData)
+        research_ref = db.collection('ResearchCollection').add(researchData)
     locationLink = url + links[3].get('href')
     locationResponse = requests.get(locationLink,Header)
     if locationResponse.status_code == 200:
@@ -52,25 +52,25 @@ if response.status_code == 200:
         locationSoupLinks = locationSoup.find_all('a',{'class':'stretched-link'})
         for iterate in range(3):
             locationHours = url + locationSoupLinks[iterate].get('href')
-            #locResponse = requests.get(locationHours,Header)
+            locResponse = requests.get(locationHours,Header)
             print(locationSoupLinks[iterate].text + " = " + locationHours)
             locationData = { 
                 'library' : locationSoupLinks[iterate].text, 
                 'link': locationHours
             }
-        #print(locationData)
+        print(locationData)
         #Creating collection for researchData
-        #location_ref = db.collection("LocationCollection").add(locationData)
-           # if locResponse.status_code == 200:
-            #    locSoup = BeautifulSoup(locResponse.content, 'html.parser')
-             #   monthSoup = locSoup.find_all('div',{'id':'s-lc-mhw-m13-661042b62d3cd'})
-              #  for iterate in monthSoup:
-               #     print(iterate)
-      #  scriptH = locationSoup.find_all('script',{'src':'https://uta.libcal.com/js/hours_month.js?002'})
-       # for iterate in range(3):
-        #    print(scriptH[iterate].text)
-        #else:
-           # print(f'Error {response.status_code} while accessing the website.')
+        location_ref = db.collection("LocationCollection").add(locationData)
+        if locResponse.status_code == 200:
+                locSoup = BeautifulSoup(locResponse.content, 'html.parser')
+                monthSoup = locSoup.find_all('div',{'id':'s-lc-mhw-m13-661042b62d3cd'})
+                for iterate in monthSoup:
+                    print(iterate)
+        scriptH = locationSoup.find_all('script',{'src':'https://uta.libcal.com/js/hours_month.js?002'})
+        for iterate in range(3):
+            print(scriptH[iterate].text)
+        else:
+            print(f'Error {response.status_code} while accessing the website.')
     else:
         print(f'Error {response.status_code} while accessing the website.')
 else:
