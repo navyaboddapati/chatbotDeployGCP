@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>UTA Library Chatbot</title>
+  <style>
+    .chat-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .chat-messages {
+      height: 300px;
+      overflow-y: scroll;
+      padding-right: 10px;
+    }
+    .chat-input {
+      display: flex;
+      margin-top: 10px;
+    }
+    .chat-input input {
+      flex-grow: 1;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    .chat-input button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h1>UTA Library Chatbot</h1>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="chat-input">
+      <input type="text" id="chat-input" placeholder="Type your message here..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const userInput = document.getElementById("chat-input").value;
+      if (userInput.trim() !== "") {
+        addMessageToChat("You: " + userInput);
+        document.getElementById("chat-input").value = "";
+
+        // Send the user's message to the Cloud Function
+        fetch("/chatbot", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ query: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+          addMessageToChat("Chatbot: " + data.response);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          addMessageToChat("Chatbot: I'm sorry, there was an error processing your request. Please try again later.");
+        });
+      }
+    }
+
+    function addMessageToChat(message) {
+      const chatMessages = document.getElementById("chat-messages");
+      const messageElement = document.createElement("div");
+      messageElement.textContent = message;
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  </script>
+</body>
+</html>
