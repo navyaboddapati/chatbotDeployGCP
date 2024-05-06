@@ -1,22 +1,11 @@
-from google.cloud import firestore
-from google.oauth2 import service_account
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
 
-# Replace these values with your actual project details
-PROJECT_ID = 'chat-422418'
-SERVICE_ACCOUNT_EMAIL = 'chatbot-firestore-impersonate@chat-422418.iam.gserviceaccount.com'
-# Create the credentials object
-credentials = service_account.IDTokenCredentials.from_service_account_file(
-    'chatbot-impresonate-key.json',
-    target_audience='https://firestore.googleapis.com/',
-)
+cred = credentials.Certificate("serviceAccountKey.json")  # Replace with your file path
+firebase_admin.initialize_app(cred)
 
-# Impersonate the service account
-impersonated_credentials = credentials.with_target_service_account(
-    SERVICE_ACCOUNT_EMAIL
-)
-
-# Initialize the Firestore client with the impersonated credentials
-db = firestore.Client(project=PROJECT_ID, credentials=impersonated_credentials)
+db = firebase_admin.firestore.client()
 
 # Functions for Firestore operations
 def create_document(collection_name, data):
