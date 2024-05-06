@@ -7,9 +7,10 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
         }
         .chat-container {
-            height: calc(100% - 20px); /* Adjust this value for padding or margin */
+            height: calc(100% - 20px);
             max-width: 600px;
             margin: 0 auto;
             padding: 20px;
@@ -19,32 +20,47 @@
             box-sizing: border-box;
         }
         .chat-messages {
-            height: calc(100% - 50px); /* Adjust this value for input box height */
+            height: calc(100% - 50px);
             overflow-y: scroll;
             padding-right: 10px;
             box-sizing: border-box;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .user-message {
+            text-align: right;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .chatbot-message {
+            text-align: left;
+            color: #444;
+            margin-bottom: 10px;
         }
         .chat-input {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 600px;
-            display: flex; /* Use flexbox */
+            display: flex;
             align-items: center;
             padding: 10px 20px;
             box-sizing: border-box;
+            background-color: #fff;
+            border-top: 1px solid #ccc;
+            border-radius: 0 0 5px 5px;
         }
         .chat-input input {
             flex-grow: 1;
             width: calc(100% - 40px);
-            padding: 5px;
+            padding: 8px;
             border: 1px solid #ccc;
             border-radius: 3px;
             box-sizing: border-box;
         }
         .chat-input button {
-            margin-left: 10px;
-            padding: 5px 10px;
+            padding: 8px 15px;
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -67,7 +83,7 @@
         function sendMessage() {
             const userInput = document.getElementById("chat-input").value;
             if (userInput.trim() !== "") {
-                addMessageToChat("You: " + userInput);
+                addMessageToChat("You: " + userInput, 'user-message');
                 document.getElementById("chat-input").value = "";
                 // Send the user's message to the Flask server
                 fetch("/get-response", {
@@ -79,11 +95,11 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    addMessageToChat("Chatbot: " + data.response);
+                    addMessageToChat("Chatbot: " + data.response, 'chatbot-message');
                 })
                 .catch(error => {
                     console.error("Error:", error);
-                    addMessageToChat("Chatbot: I'm sorry, there was an error processing your request. Please try again later.");
+                    addMessageToChat("Chatbot: I'm sorry, there was an error processing your request. Please try again later.", 'chatbot-message');
                 });
             }
         }
@@ -92,16 +108,17 @@
                 sendMessage();
             }
         }
-        function addMessageToChat(message) {
+        function addMessageToChat(message, messageType) {
             const chatMessages = document.getElementById("chat-messages");
             const messageElement = document.createElement("div");
-            messageElement.textContent = message;
+            messageElement.innerHTML = message; // Use innerHTML instead of textContent
+            messageElement.classList.add(messageType);
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         window.addEventListener("resize", function() {
             const chatContainer = document.querySelector(".chat-container");
-            chatContainer.style.height = window.innerHeight - 20 + "px"; // Adjust this value for padding or margin
+            chatContainer.style.height = window.innerHeight - 20 + "px";
         });
     </script>
 </body>
